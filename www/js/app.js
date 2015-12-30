@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'firebase'])
+angular.module('starter', ['ionic', 'firebase', 'ngCordova'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -22,8 +22,15 @@ angular.module('starter', ['ionic', 'firebase'])
     }
   });
 })
-.factory("Items", function($firebaseArray) {
-  var itemsRef = new Firebase("https://incandescent-fire-4990.firebaseio.com/items");
+.factory("FbUrl", function () {
+  return "incandescent-fire-4990";
+})
+.factory("Auth", function($firebaseAuth, FbUrl) {
+  var usersRef = new Firebase("https//" + FbUrl + ".firebaseio.com/users");
+  return $firebaseAuth(usersRef);
+})
+.factory("Items", function($firebaseArray, FbUrl) {
+  var itemsRef = new Firebase("https://" + FbUrl + ".firebaseio.com/items");
   return $firebaseArray(itemsRef);
 })
 .controller("ListCtrl", function($scope, Items) {
