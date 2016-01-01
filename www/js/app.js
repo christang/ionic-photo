@@ -31,6 +31,11 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
       controller: "FirebaseController",
       cache: false
     })
+    .state("map", {
+      url: "/map",
+      templateUrl: "templates/map.html",
+      controller: "MapController"
+    })
     .state("secure", {
       url: "/secure",
       templateUrl: "templates/secure.html",
@@ -50,7 +55,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
       email: username,
       password: password
     }).then(function(authData) {
-      $state.go("secure");
+      $state.go("map");
     }).catch(function(error) {
       console.error("ERROR: " + error);
     });
@@ -63,11 +68,46 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
         password: password
       });
     }).then(function(authData) {
-      $state.go("secure");
+      $state.go("map");
     }).catch(function(error) {
       console.error("ERROR: " + error);
     });
   }
+})
+.controller('MapController', function($scope, $cordovaGeolocation, $ionicLoading) {
+  ionic.Platform.ready(function(){
+    $ionicLoading.show({
+      template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
+    });
+     
+    var posOptions = {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
+    };
+
+    $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
+      var lat  = position.coords.latitude;
+      var long = position.coords.longitude;
+       
+      var myLatlng = new google.maps.LatLng(lat, long);
+       
+      var mapOptions = {
+        center: myLatlng,
+        zoom: 16,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      };          
+         
+      var map = new google.maps.Map(document.getElementById("map"), mapOptions);          
+         
+      $scope.map = map;   
+      $ionicLoading.hide();           
+         
+    }, function(err) {
+      $ionicLoading.hide();
+      console.log(err);
+    });
+  });
 })
 .controller("SecureController", function($scope, $ionicHistory, $firebaseArray, $cordovaCamera, fb) {
   $ionicHistory.clearHistory();
