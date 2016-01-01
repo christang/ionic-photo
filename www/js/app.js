@@ -3,7 +3,6 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-var fb = new Firebase("https://incandescent-fire-4990.firebaseio.com/");
 
 angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
 
@@ -39,18 +38,11 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
     });
   $urlRouterProvider.otherwise('/firebase');
 })
-.factory("FbUrl", function () {
-  return "incandescent-fire-4990";
+.factory("fb", function (Firebase) {
+  var fbRef = new Firebase("https://incandescent-fire-4990.firebaseio.com/");
+  return fbRef;
 })
-.factory("Auth", function($firebaseAuth, FbUrl) {
-  var usersRef = new Firebase("https//" + FbUrl + ".firebaseio.com/users");
-  return $firebaseAuth(usersRef);
-})
-.factory("Items", function($firebaseArray, FbUrl) {
-  var itemsRef = new Firebase("https://" + FbUrl + ".firebaseio.com/items");
-  return $firebaseArray(itemsRef);
-})
-.controller("FirebaseController", function($scope, $state, $firebaseAuth) {
+.controller("FirebaseController", function($scope, $state, $firebaseAuth, fb) {
   var fbAuth = $firebaseAuth(fb);
 
   $scope.login = function(username, password) {
@@ -77,7 +69,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
     });
   }
 })
-.controller("SecureController", function($scope, $ionicHistory, $firebaseArray, $cordovaCamera) {
+.controller("SecureController", function($scope, $ionicHistory, $firebaseArray, $cordovaCamera, fb) {
   $ionicHistory.clearHistory();
   $scope.images = [];
 
@@ -92,33 +84,23 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
 
   $scope.upload = function() {
     var options = {
-      quality : 75,
-      destinationType : Camera.DestinationType.DATA_URL,
-      sourceType : Camera.PictureSourceType.CAMERA,
-      allowEdit : true,
+      quality: 75,
+      destinationType: Camera.DestinationType.DATA_URL,
+      sourceType: Camera.PictureSourceType.CAMERA,
+      allowEdit: true,
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
       targetWidth: 500,
       targetHeight: 500,
       saveToPhotoAlbum: false
     };
-    $cordovaCamera.getPicture(options).then(function(imageData) {
-      syncArray.$add({image: imageData}).then(function() {
-        alert("Image has been uploaded");
+    $cordovaCamera.getPicture(options)
+      .then(function(imageData) {
+        syncArray.$add({image: imageData}).then(function() {
+          alert("Image has been uploaded");
+        });
+      }, function(error) {
+        console.error(error);
       });
-    }, function(error) {
-      console.error(error);
-    });
   }
 })
-.controller("ListCtrl", function($scope, Items) {
-  $scope.items = Items;
-  $scope.addItem = function() {
-    var name = prompt("What do you need to buy?");
-    if (name) {
-      $scope.items.$add({
-        "name": name
-      });
-    }
-  };
-});
