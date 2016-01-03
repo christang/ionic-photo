@@ -43,6 +43,16 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
     });
   $urlRouterProvider.otherwise('/firebase');
 })
+.factory('$localstorage', function($window) {
+  return {
+    setObject: function(key, value) {
+      $window.localStorage[key] = JSON.stringify(value);
+    },
+    getObject: function(key) {
+      return JSON.parse($window.localStorage[key] || '{}');
+    }
+  }
+})
 .factory("fb", function (Firebase) {
   var fbRef = new Firebase("https://incandescent-fire-4990.firebaseio.com/");
   return fbRef;
