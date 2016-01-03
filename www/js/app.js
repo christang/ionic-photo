@@ -60,6 +60,10 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
 .controller("FirebaseController", function($scope, $state, $firebaseAuth, fb) {
   var fbAuth = $firebaseAuth(fb);
 
+  if (fb.getAuth()) {
+    $state.go("secure");
+  }
+
   $scope.login = function(username, password) {
     fbAuth.$authWithPassword({
       email: username,
