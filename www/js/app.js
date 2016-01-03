@@ -31,6 +31,10 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
       controller: "FirebaseController",
       cache: false
     })
+    .state("logout", {
+      url: "/logout",
+      controller: "LogoutController"
+    })
     .state("map", {
       url: "/map",
       templateUrl: "templates/map.html",
@@ -49,7 +53,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
       $window.localStorage[key] = JSON.stringify(value);
     },
     getObject: function(key) {
-      return JSON.parse($window.localStorage[key] || '{}');
+      return JSON.parse($window.localStorage[key] || '""');
     }
   }
 })
@@ -57,11 +61,19 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
   var fbRef = new Firebase("https://incandescent-fire-4990.firebaseio.com/");
   return fbRef;
 })
-.controller("FirebaseController", function($scope, $state, $firebaseAuth, fb) {
+.controller("FirebaseController", function($scope, $state, $firebaseAuth, $localstorage, fb) {
   var fbAuth = $firebaseAuth(fb);
 
   if (fb.getAuth()) {
     $state.go("secure");
+  }
+
+  if ($localstorage.getObject('username')) {
+    $scope.username = $localstorage.getObject('username');
+    $scope.save_username = true;
+  } else {
+    $scope.username = '';
+    $scope.save_username = false;
   }
 
   $scope.login = function(username, password) {
@@ -87,6 +99,19 @@ angular.module('starter', ['ionic', 'ngCordova', 'firebase'])
       console.error("ERROR: " + error);
     });
   }
+
+  $scope.toggle_username = function(username, save_username) {
+    if (save_username) {
+      $localstorage.setObject('username', username);
+    } else {
+      $localstorage.setObject('username', '');
+    }
+  }
+})
+.controller('LogoutController', function($scope, $state, $ionicHistory, fb) {
+  fb.unauth();
+  $ionicHistory.clearHistory();
+  $state.go('firebase');
 })
 .controller('MapController', function($scope, $cordovaGeolocation, $ionicLoading) {
   ionic.Platform.ready(function(){

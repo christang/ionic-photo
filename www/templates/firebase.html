@@ -8,6 +8,15 @@
         <label class="item item-input">
           <input ng-model="password" type="password" placeholder="Password" />
         </label>
+        <div class="item item-toggle">
+          Save username
+          <label class="toggle">
+            <input type="checkbox" ng-model="save_username" ng-change="toggle_username(username, save_username)">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </div>
       </div>
       <div class="padding-left padding-right">
         <div class="button-bar">
